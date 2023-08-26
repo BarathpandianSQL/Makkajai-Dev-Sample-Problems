@@ -1,0 +1,80 @@
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+
+class Item {
+    private int quantity;
+    private String name;
+    private double price;
+    private boolean isImported;
+    private boolean isExempt;
+
+    public Item(int quantity, String name, double price, boolean isImported, boolean isExempt) {
+        this.quantity = quantity;
+        this.name = name;
+        this.price = price;
+        this.isImported = isImported;
+        this.isExempt = isExempt;
+    }
+
+    public double calculateTax() {
+        double taxRate = 0.0;
+        if (!isExempt) {
+            taxRate += 0.1;
+        }
+        if (isImported) {
+            taxRate += 0.05;
+        }
+        double tax = Math.ceil(price * taxRate * 20) / 20;
+        return tax;
+    }
+
+    public double getTotalPrice() {
+        return price + calculateTax();
+    }
+
+    @Override
+    public String toString() {
+        return quantity + " " + name + ": " + String.format("%.2f", getTotalPrice());
+    }
+}
+
+public class ReceiptGenerator {
+    public static void main(String[] args) {
+        List<Item> basket1 = new ArrayList<>();
+        basket1.add(new Item(1, "book", 12.49, false, true));
+        basket1.add(new Item(1, "music CD", 14.99, false, false));
+        basket1.add(new Item(1, "chocolate bar", 0.85, false, true));
+
+        List<Item> basket2 = new ArrayList<>();
+        basket2.add(new Item(1, "imported box of chocolates", 10.00, true, true));
+        basket2.add(new Item(1, "imported bottle of perfume", 47.50, true, false));
+
+        List<Item> basket3 = new ArrayList<>();
+        basket3.add(new Item(1, "imported bottle of perfume", 27.99, true, false));
+        basket3.add(new Item(1, "bottle of perfume", 18.99, false, false));
+        basket3.add(new Item(1, "packet of headache pills", 9.75, false, true));
+        basket3.add(new Item(1, "box of imported chocolates", 11.25, true, true));
+
+        generateReceipt("Output 1", basket1);
+        generateReceipt("Output 2", basket2);
+        generateReceipt("Output 3", basket3);
+    }
+
+    public static void generateReceipt(String title, List<Item> items) {
+        double totalSalesTax = 0.0;
+        double totalCost = 0.0;
+
+        System.out.println(title + ":");
+        for (Item item : items) {
+            totalSalesTax += item.calculateTax();
+            totalCost += item.getTotalPrice();
+            System.out.println(item.toString());
+        }
+
+        DecimalFormat df = new DecimalFormat("0.00");
+        System.out.println("Sales Taxes: " + df.format(totalSalesTax));
+        System.out.println("Total: " + df.format(totalCost));
+        System.out.println();
+    }
+}
