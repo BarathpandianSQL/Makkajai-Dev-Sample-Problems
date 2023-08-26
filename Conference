@@ -2,7 +2,7 @@ import java.util.*;
 
 class Talk {
     String title;
-    int duration; // in minutes
+    int duration;
     
     public Talk(String title, int duration) {
         this.title = title;
