@@ -1,0 +1,145 @@
+import java.util.*;
+
+class Talk {
+    String title;
+    int duration; // in minutes
+    
+    public Talk(String title, int duration) {
+        this.title = title;
+        this.duration = duration;
+    }
+    
+    public String toString() {
+        return title + " " + (duration == 5 ? "lightning" : duration + "min");
+    }
+}
+
+class Session {
+    List<Talk> talks = new ArrayList<>();
+    int startTime; // in minutes
+    
+    public Session(int startTime) {
+        this.startTime = startTime;
+    }
+    
+    public boolean addTalk(Talk talk) {
+        if (getRemainingTime() >= talk.duration) {
+            talks.add(talk);
+            return true;
+        }
+        return false;
+    }
+    
+    public int getRemainingTime() {
+        int usedTime = talks.stream().mapToInt(talk -> talk.duration).sum();
+        return startTime + usedTime <= 240 ? 240 - (startTime + usedTime) : 0;
+    }
+    
+    public String toString() {
+        StringBuilder sessionString = new StringBuilder();
+        for (Talk talk : talks) {
+            sessionString.append(formatTime(startTime)).append(" ").append(talk).append("\n");
+            startTime += talk.duration;
+        }
+        return sessionString.toString();
+    }
+    
+    private String formatTime(int minutes) {
+        int hours = minutes / 60;
+        int mins = minutes % 60;
+        String period = hours >= 12 ? "PM" : "AM";
+        hours = hours > 12 ? hours - 12 : hours;
+        return String.format("%02d:%02d%s", hours, mins, period);
+    }
+}
+
+class Track {
+    List<Session> sessions = new ArrayList<>();
+    int currentTime = 9 * 60; // Start time at 9:00 AM
+    
+    public Track() {
+        sessions.add(new Session(currentTime));
+        currentTime += 60; // Morning session
+        sessions.add(new Session(currentTime));
+        currentTime += 60; // Afternoon session
+    }
+    
+    public boolean addTalk(Talk talk) {
+        for (Session session : sessions) {
+            if (session.addTalk(talk)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public String toString() {
+        StringBuilder trackString = new StringBuilder();
+        for (Session session : sessions) {
+            trackString.append(session);
+            if (session.startTime == 12 * 60) {
+                trackString.append("12:00PM Lunch\n");
+            }
+            if (session.startTime >= 16 * 60 && session.startTime <= 17 * 60) {
+                trackString.append("05:00PM Networking Event\n");
+            }
+        }
+        return trackString.toString();
+    }
+}
+
+public class ConferenceScheduler {
+    public static void main(String[] args) {
+        List<Talk> talks = new ArrayList<>();
+        // Add your talks here
+        
+        // Sample talks
+        talks.add(new Talk("Writing Fast Tests Against Enterprise Rails", 60));
+        talks.add(new Talk("Overdoing it in Python", 45));
+        talks.add(new Talk("Lua for the Masses", 30));
+        talks.add(new Talk("Ruby Errors from Mismatched Gem Versions", 45));
+        talks.add(new Talk("Common Ruby Errors", 45));
+        talks.add(new Talk("Rails for Python Developers", 5)); // lightning
+        talks.add(new Talk("Communicating Over Distance", 60));
+        talks.add(new Talk("Accounting-Driven Development", 45));
+        talks.add(new Talk("Woah", 30));
+        talks.add(new Talk("Sit Down and Write", 30));
+        talks.add(new Talk("Pair Programming vs Noise", 45));
+        talks.add(new Talk("Rails Magic", 60));
+        talks.add(new Talk("Ruby on Rails: Why We Should Move On", 60));
+        talks.add(new Talk("Clojure Ate Scala (on my project)", 45));
+        talks.add(new Talk("Programming in the Boondocks of Seattle", 30));
+        talks.add(new Talk("Ruby vs. Clojure for Back-End Development", 30));
+        talks.add(new Talk("Ruby on Rails Legacy App Maintenance", 60));
+        talks.add(new Talk("A World Without HackerNews", 30));
+        talks.add(new Talk("User Interface CSS in Rails Apps", 30));
+        
+        List<Track> tracks = scheduleTalks(talks);
+        
+        for (int i = 0; i < tracks.size(); i++) {
+            System.out.println("Track " + (i + 1) + ":");
+            System.out.println(tracks.get(i));
+        }
+    }
+    
+    public static List<Track> scheduleTalks(List<Talk> talks) {
+        List<Track> tracks = new ArrayList<>();
+        
+        for (Talk talk : talks) {
+            boolean added = false;
+            for (Track track : tracks) {
+                if (track.addTalk(talk)) {
+                    added = true;
+                    break;
+                }
+            }
+            if (!added) {
+                Track newTrack = new Track();
+                newTrack.addTalk(talk);
+                tracks.add(newTrack);
+            }
+        }
+        
+        return tracks;
+    }
+}
