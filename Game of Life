@@ -83,7 +83,6 @@ public class GameOfLife {
     }
 
     public static void main(String[] args) {
-        // Input A
         Set<Cell> cellsA = new HashSet<>();
         cellsA.add(new Cell(1, 1));
         cellsA.add(new Cell(1, 2));
@@ -92,7 +91,5 @@ public class GameOfLife {
         
         Set<Cell> nextGenA = nextGeneration(cellsA);
         printCells(nextGenA);
-
-        // You can repeat the above steps for Input B, Input C, and Input D.
     }
 }
